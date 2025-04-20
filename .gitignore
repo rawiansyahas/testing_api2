@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+env/
+venv/
+
+# ONNX model file (keep out of Git if large)
+ms1mv2_r50.onnx
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
