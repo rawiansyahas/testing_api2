@@ -5,9 +5,7 @@ import onnxruntime as ort
 import numpy as np
 from PIL import Image
 from facenet_pytorch import MTCNN
-from sklearn.metrics.pairwise import cosine_similarity
 import gdown
-import tensorflow as tf
 
 app = Flask(__name__)
 
@@ -24,6 +22,14 @@ input_name = session.get_inputs()[0].name
 
 # Initialize MTCNN for face detection
 mtcnn = MTCNN(keep_all=False)
+
+
+def softmax(logits: np.ndarray) -> np.ndarray:
+    """
+    Compute softmax probabilities over last dimension.
+    """
+    exps = np.exp(logits - np.max(logits, axis=1, keepdims=True))
+    return exps / np.sum(exps, axis=1, keepdims=True)
 
 
 def preprocess(image: Image.Image) -> np.ndarray:
@@ -60,13 +66,10 @@ def predict():
     input_tensor = preprocess(face)
     logits = session.run(None, {input_name: input_tensor})[0]  # shape (1, num_classes)
 
-    # Convert logits to TensorFlow tensor and apply softmax
-    tf_logits = tf.constant(logits)
-    probs = tf.nn.softmax(tf_logits, axis=1).numpy()[0]
-
-    # Get predicted class index via argmax
-    class_idx = int(tf.argmax(probs, axis=0).numpy())
-    confidence = float(probs[class_idx])
+    # Compute probabilities and prediction via numpy
+    probs = softmax(logits)
+    class_idx = int(np.argmax(probs, axis=1)[0])
+    confidence = float(probs[0, class_idx])
 
     return jsonify({
         'predicted_class': class_idx,

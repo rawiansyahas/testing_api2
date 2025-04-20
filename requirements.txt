@@ -4,5 +4,3 @@ numpy
 pillow
 facenet-pytorch
 gdown
-scikit-learn
-tensorflow
