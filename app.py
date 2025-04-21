@@ -45,6 +45,8 @@ def preprocess(image: Image.Image) -> np.ndarray:
     arr -= np.array([120, 105, 90], dtype=np.float32).reshape(3,1,1)
     return np.expand_dims(arr, axis=0)
 
+app.url_map.strict_slashes = False
+
 @app.route('/predict', methods=['POST'])
 def predict():
     # Validate upload
